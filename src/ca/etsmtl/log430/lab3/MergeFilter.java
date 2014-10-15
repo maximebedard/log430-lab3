@@ -49,7 +49,7 @@ public class MergeFilter extends Thread {
 			System.out.println("MergeFilter:: connected to upstream filters.");
 		} catch (Exception Error) {
 			System.out.println("MergeFilter:: Error connecting input pipes.");
-		} // try/catch
+		}
 
 		try {
 			// Connect outputPipe to downstream filter
@@ -57,7 +57,7 @@ public class MergeFilter extends Thread {
 			System.out.println("MergeFilter:: connected to downstream filter.");
 		} catch (Exception Error) {
 			System.out.println("MergeFilter:: Error connecting output pipe.");
-		} // catch
+		}
 
 	} // Constructor
 
