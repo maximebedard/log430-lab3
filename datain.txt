@@ -2,3 +2,8 @@
 0002 REG SYS001 01.05 60 RIS Systeme de gestion des billets
 0003 CRI SYS003 02.04 00 DIF CRM serv. des relations avec l'industrie
 0004 REG SYS003 03.01 00 DIF Projet 4
+0005 REG SYS004 10.11 95 PRO Un super projet en développement AngularJs
+0006 REG SYS005 02.03 50 DIF Un mega projet pour le cours log430
+0007 REG SYS006 03.05 75 DIF Un merveilleux projet de test
+0008 REG SYS006 09.04 90 RIS Une nouvelle version de Facebook
+0009 REG SYS006 04.02 40 RIS Un remplacement pour Skype

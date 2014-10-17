@@ -61,6 +61,7 @@ public class SystemInitialize {
 			PipedWriter pipe05 = new PipedWriter();
 			PipedWriter pipe06 = new PipedWriter();
             PipedWriter pipe07 = new PipedWriter();
+            PipedWriter pipe08 = new PipedWriter();
 
 			// Instantiate Filter Threads
 			Thread fileReaderFilter = new FileReaderFilter(argv[0], pipe01);
@@ -68,8 +69,10 @@ public class SystemInitialize {
 			Thread stateFilter1 = new StateFilter("RIS", pipe02, pipe04);
 			Thread stateFilter2 = new StateFilter("DIF", pipe03, pipe05);
 			Thread mergeFilter = new MergeFilter(pipe04, pipe05, pipe06);
-            Thread formatFilter = new FormatFilter(pipe06, pipe07);
-			Thread fileWriterFilter = new FileWriterFilter(argv[1], pipe07);
+
+            Thread sortFilter = new SortByStateFilter(pipe06, pipe07);
+            Thread formatFilter = new FormatFilter(pipe07, pipe08);
+			Thread fileWriterFilter = new FileWriterFilter(argv[1], pipe08);
 
 
 			// Start the threads
@@ -78,6 +81,7 @@ public class SystemInitialize {
 			stateFilter1.start();
 			stateFilter2.start();
 			mergeFilter.start();
+            sortFilter.start();
             formatFilter.start();
             fileWriterFilter.start();
 
