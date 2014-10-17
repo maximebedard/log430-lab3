@@ -3,9 +3,7 @@ package ca.etsmtl.log430.lab3;
 import java.io.IOException;
 import java.io.PipedReader;
 import java.io.PipedWriter;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.TreeMap;
+import java.util.*;
 
 /**
  * User: maximebedard
@@ -20,23 +18,26 @@ public class SortByStateFilter extends Filter {
 
     @Override
     public void execute() {
-
-        final TreeMap<String, String> treeMap = new TreeMap<String, String>();
+        final ArrayList<String> lines = new ArrayList<String>();
 
         readAll(new FilterVisitor() {
             @Override
             public void onRead(String line) {
-                treeMap.put(getStateForLine(line), line);
+                lines.add(line);
             }
         });
 
-        for(String val : treeMap.values())
-            writeAll(val);
-
+        Collections.sort(lines, new Comparator<String>() {
+            @Override
+            public int compare(String o1, String o2) {
+                return getStateForLine(o1).compareTo(getStateForLine(o2));
+            }
+        });
+        for(String line : lines)
+            writeAll(line);
     }
 
     private static String getStateForLine(String line) {
         return line.split(" ")[5];
     }
-
 }
