@@ -12,62 +12,31 @@ import java.util.TreeMap;
  * Date: 2014-10-15
  * Time: 12:08 PM
  */
-public class SortByStateFilter extends Thread {
+public class SortByStateFilter extends Filter {
 
-
-    private final PipedReader inputPipe = new PipedReader();
-    private PipedWriter outputPipe = new PipedWriter();
-
-    public SortByStateFilter(PipedWriter inputPipe, PipedWriter outputPipe)
-    {
-
-        try {
-            this.inputPipe.connect(inputPipe);
-            this.outputPipe = outputPipe;
-        } catch (IOException e) {
-            FilterUtils.log(SortByStateFilter.class, "Error connecting to other filters.");
-        }
-
+    public SortByStateFilter(PipedWriter inputPipe, PipedWriter outputPipe) {
+        super(inputPipe, outputPipe);
     }
-
-
 
     @Override
-    public void run() {
+    public void execute() {
 
-        // Block to read all the lines in the pipe
-        Collection<String> lines = PipeUtils.readAllLinesToContainer(inputPipe, SortByStateFilter.class);
+        final TreeMap<String, String> treeMap = new TreeMap<String, String>();
 
-        // Create TreeMap to sort items based on their state
-        TreeMap<String, String> treeMap = new TreeMap<String, String>();
-        for(String line: lines)
-        {
-            treeMap.put(getStateForLine(line), line);
-        }
+        readAll(new FilterVisitor() {
+            @Override
+            public void onRead(String line) {
+                treeMap.put(getStateForLine(line), line);
+            }
+        });
 
-        // Forward the sorted elements to the other pipe
-        PipeUtils.writeLines(outputPipe, treeMap.values(), SortByStateFilter.class);
+        for(String val : treeMap.values())
+            writeAll(val);
 
-        closePipes();
     }
 
-    private void closePipes() {
-        try {
-            inputPipe.close();
-            FilterUtils.log(SortByStateFilter.class, "input pipe closed.");
-            outputPipe.close();
-            FilterUtils.log(SortByStateFilter.class, "input pipe closed.");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private String getStateForLine(String line) {
+    private static String getStateForLine(String line) {
         return line.split(" ")[5];
     }
-
-
-
-
 
 }
