@@ -102,8 +102,8 @@ public class SystemInitialize {
 
     private static String GenerateOutputFileName(String fileName, String systemName)
     {
-        String[] splitFileName = fileName.split(".");
-        return splitFileName[0] + systemName + splitFileName[1];
+        String[] splitFileName = fileName.split("[.]");
+        return splitFileName[0] + systemName + "." + splitFileName[1];
     }
 	
 } // SystemInitialize
