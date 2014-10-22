@@ -53,41 +53,57 @@ public class SystemInitialize {
 					.println("\njava SystemInitialize <fichier d'entree> <fichier de sortie>");
 
 		} else {
-			// These are the declarations for the pipes.
-			PipedWriter pipe01 = new PipedWriter();
-			PipedWriter pipe02 = new PipedWriter();
-			PipedWriter pipe03 = new PipedWriter();
-			PipedWriter pipe04 = new PipedWriter();
-			PipedWriter pipe05 = new PipedWriter();
-			PipedWriter pipe06 = new PipedWriter();
-            PipedWriter pipe07 = new PipedWriter();
-            PipedWriter pipe08 = new PipedWriter();
-
-			// Instantiate Filter Threads
-			Thread fileReaderFilter = new FileReaderFilter(argv[0], pipe01);
-			Thread statusFilter = new StatusFilter(pipe01, pipe02, pipe03);
-			Thread stateFilter1 = new StateFilter("RIS", pipe02, pipe04);
-			Thread stateFilter2 = new StateFilter("DIF", pipe03, pipe05);
-			Thread mergeFilter = new MergeFilter(pipe04, pipe05, pipe06);
-
-            Thread sortFilter = new SortByStateFilter(pipe06, pipe07);
-            Thread formatFilter = new FormatFilter(pipe07, pipe08);
-			Thread fileWriterFilter = new FileWriterFilter(argv[1], pipe08);
-
-
-			// Start the threads
-			fileReaderFilter.start();
-			statusFilter.start();
-			stateFilter1.start();
-			stateFilter2.start();
-			mergeFilter.start();
-            sortFilter.start();
-            formatFilter.start();
-            fileWriterFilter.start();
-
-			
-		}  // if
+            SystemInitialize.SystemA(argv[0], SystemInitialize.GenerateOutputFileName(argv[1], "SA"));
+            SystemInitialize.SystemB(argv[0], SystemInitialize.GenerateOutputFileName(argv[1], "SB"));
+        }  // if
 		
 	} // main
+
+    private static void SystemA(String inputFile, String outputFile)
+    {
+        // These are the declarations for the pipes.
+        PipedWriter pipe01 = new PipedWriter();
+        PipedWriter pipe02 = new PipedWriter();
+        PipedWriter pipe03 = new PipedWriter();
+        PipedWriter pipe04 = new PipedWriter();
+        PipedWriter pipe05 = new PipedWriter();
+        PipedWriter pipe06 = new PipedWriter();
+        PipedWriter pipe07 = new PipedWriter();
+        PipedWriter pipe08 = new PipedWriter();
+
+        // Instantiate Filter Threads
+        Thread fileReaderFilter = new FileReaderFilter(inputFile, pipe01);
+        Thread statusFilter = new StatusFilter(pipe01, pipe02, pipe03);
+        Thread stateFilter1 = new StateFilter("RIS", pipe02, pipe04);
+        Thread stateFilter2 = new StateFilter("DIF", pipe03, pipe05);
+        Thread mergeFilter = new MergeFilter(pipe04, pipe05, pipe06);
+
+        Thread sortFilter = new SortByStateFilter(pipe06, pipe07);
+        Thread formatFilter = new FormatFilter(pipe07, pipe08);
+        Thread fileWriterFilter = new FileWriterFilter(outputFile, pipe08);
+
+
+        // Start the threads
+        fileReaderFilter.start();
+        statusFilter.start();
+        stateFilter1.start();
+        stateFilter2.start();
+        mergeFilter.start();
+        sortFilter.start();
+        formatFilter.start();
+        fileWriterFilter.start();
+
+    }
+
+    private static void SystemB(String inputFile, String outputFile)
+    {
+
+    }
+
+    private static String GenerateOutputFileName(String fileName, String systemName)
+    {
+        String[] splitFileName = fileName.split(".");
+        return splitFileName[0] + systemName + splitFileName[1];
+    }
 	
 } // SystemInitialize
