@@ -93,11 +93,108 @@ public class SystemInitialize {
         formatFilter.start();
         fileWriterFilter.start();
 
+        try {
+            fileWriterFilter.join();
+        }catch (InterruptedException ex)
+        {
+
+        }
+
     }
 
     private static void SystemB(String inputFile, String outputFile)
     {
+        SystemInitialize.SystemB1(inputFile, SystemInitialize.GenerateOutputFileName(outputFile, "1"));
+        SystemInitialize.SystemB2(inputFile, SystemInitialize.GenerateOutputFileName(outputFile, "2"));
+    }
 
+    private static void SystemB1(String inputFile, String outputFile)
+    {
+        // These are the declarations for the pipes.
+        PipedWriter pipe01 = new PipedWriter();
+        PipedWriter pipe02 = new PipedWriter();
+        PipedWriter pipe03 = new PipedWriter();
+        PipedWriter pipe04 = new PipedWriter();
+        PipedWriter pipe05 = new PipedWriter();
+        PipedWriter pipe06 = new PipedWriter();
+        PipedWriter pipe07 = new PipedWriter();
+        PipedWriter pipe08 = new PipedWriter();
+        PipedWriter pipe09 = new PipedWriter();
+
+
+        // Instantiate Filter Threads
+        Thread fileReaderFilter = new FileReaderFilter(inputFile, pipe01);
+        Thread statusFilter = new StatusFilter2("REG", pipe01, pipe02);
+        Thread rateFilter = new RateFilter("50", RateFilter.Compare.Lower, pipe02, pipe03);
+        Thread splitPipeFilter = new SplitPipeFilter(pipe03, pipe05, pipe06);
+        Thread stateFilter1 = new StateFilter("RIS", pipe05, pipe07);
+        Thread stateFilter2 = new StateFilter("DIF", pipe06, pipe08);
+        Thread mergeFilter = new MergeFilter(pipe07, pipe08, pipe09);
+        Thread fileWriterFilter = new FileWriterFilter(outputFile, pipe09);
+
+        // Start the threads
+        fileReaderFilter.start();
+        rateFilter.start();
+        statusFilter.start();
+        splitPipeFilter.start();
+        stateFilter1.start();
+        stateFilter2.start();
+        mergeFilter.start();
+        fileWriterFilter.start();
+
+        try {
+            fileWriterFilter.join();
+        }catch (InterruptedException ex)
+        {
+
+        }
+    }
+
+    private static void SystemB2(String inputFile, String outputFile)
+    {
+        // These are the declarations for the pipes.
+        PipedWriter pipe01 = new PipedWriter();
+        PipedWriter pipe02 = new PipedWriter();
+        PipedWriter pipe03 = new PipedWriter();
+        PipedWriter pipe04 = new PipedWriter();
+        PipedWriter pipe05 = new PipedWriter();
+        PipedWriter pipe06 = new PipedWriter();
+        PipedWriter pipe07 = new PipedWriter();
+        PipedWriter pipe08 = new PipedWriter();
+        PipedWriter pipe09 = new PipedWriter();
+
+
+        // Instantiate Filter Threads
+        Thread fileReaderFilter = new FileReaderFilter(inputFile, pipe01);
+        Thread statusFilter = new StatusFilter2("CRI", pipe01, pipe02);
+        Thread splitPipeFilter = new SplitPipeFilter(pipe02, pipe03, pipe04);
+
+        Thread stateFilter1 = new StateFilter2("RIS", StateFilter2.Compare.Equal, pipe03, pipe05);
+        Thread rateFilter1 = new RateFilter("25", RateFilter.Compare.Equal, pipe05, pipe06);
+
+        Thread stateFilter2 = new StateFilter2("RIS", StateFilter2.Compare.Different, pipe04, pipe07);
+        Thread rateFilter2 = new RateFilter("75", RateFilter.Compare.Upper, pipe07, pipe08);
+
+        Thread mergeFilter = new MergeFilter(pipe06, pipe08, pipe09);
+        Thread fileWriterFilter = new FileWriterFilter(outputFile, pipe09);
+
+        // Start the threads
+        fileReaderFilter.start();
+        statusFilter.start();
+        splitPipeFilter.start();
+        stateFilter1.start();
+        rateFilter1.start();
+        stateFilter2.start();
+        rateFilter2.start();
+        mergeFilter.start();
+        fileWriterFilter.start();
+
+        try {
+            fileWriterFilter.join();
+        }catch (InterruptedException ex)
+        {
+
+        }
     }
 
     private static String GenerateOutputFileName(String fileName, String systemName)
