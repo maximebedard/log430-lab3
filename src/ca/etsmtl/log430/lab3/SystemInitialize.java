@@ -62,6 +62,11 @@ public class SystemInitialize {
     private static void SystemA(String inputFile, String outputFile)
     {
         // These are the declarations for the pipes.
+
+        //Entry pipe
+        PipedWriter entry = new PipedWriter();
+
+        //Stream 1
         PipedWriter pipe01 = new PipedWriter();
         PipedWriter pipe02 = new PipedWriter();
         PipedWriter pipe03 = new PipedWriter();
@@ -70,35 +75,63 @@ public class SystemInitialize {
         PipedWriter pipe06 = new PipedWriter();
         PipedWriter pipe07 = new PipedWriter();
         PipedWriter pipe08 = new PipedWriter();
+        PipedWriter pipe09 = new PipedWriter();
+
+        //Stream 2
+        PipedWriter s2pipe01 = new PipedWriter();
+        PipedWriter s2pipe02 = new PipedWriter();
+        PipedWriter s2pipe03 = new PipedWriter();
+        PipedWriter s2pipe04 = new PipedWriter();
 
         // Instantiate Filter Threads
-        Thread fileReaderFilter = new FileReaderFilter(inputFile, pipe01);
+        Thread fileReaderFilter = new FileReaderFilter(inputFile, entry);
+
+        //Split stream into two parts. S2 will keep track of original stream
+        Thread splitPipe = new SplitPipeFilter(entry,pipe01, s2pipe01);
+
         Thread statusFilter = new StatusFilter(pipe01, pipe02, pipe03);
         Thread stateFilter1 = new StateFilter("RIS", pipe02, pipe04);
         Thread stateFilter2 = new StateFilter("DIF", pipe03, pipe05);
         Thread mergeFilter = new MergeFilter(pipe04, pipe05, pipe06);
 
-        Thread sortFilter = new SortByStateFilter(pipe06, pipe07);
-        Thread formatFilter = new FormatFilter(pipe07, pipe08);
-        Thread fileWriterFilter = new FileWriterFilter(outputFile, pipe08);
+        //Compare the Initial stream vs the modified Stream. Outputs the selected projects stream and another stream
+        //where the projects were not included in the first stream
+        Thread selectedProjectsFilter = new SelectedProjectsFilter(s2pipe01, pipe06, pipe07, s2pipe02);
+
+        //Filter, sort and write using the selected projects stream
+        Thread sortFilter = new SortByStateFilter(pipe07, pipe08);
+        Thread formatFilter = new FormatFilter(pipe08, pipe09);
+        Thread fileWriterFilter = new FileWriterFilter(outputFile, pipe09);
+
+        //Filter, sort and write using the non-selected projects stream
+        Thread sortFilter2 = new SortByStateFilter(s2pipe02, s2pipe03);
+        Thread formatFilter2 = new FormatFilter(s2pipe03, s2pipe04);
+        Thread fileWriterFilter2 = new FileWriterFilter("notselected-"+outputFile, s2pipe04);
 
 
         // Start the threads
         fileReaderFilter.start();
+        splitPipe.start();
         statusFilter.start();
         stateFilter1.start();
         stateFilter2.start();
         mergeFilter.start();
+        selectedProjectsFilter.start();
         sortFilter.start();
         formatFilter.start();
+        sortFilter2.start();
+        formatFilter2.start();
         fileWriterFilter.start();
+        fileWriterFilter2.start();
 
         try {
             fileWriterFilter.join();
+            fileWriterFilter2.join();
         }catch (InterruptedException ex)
         {
 
         }
+
 
     }
 
