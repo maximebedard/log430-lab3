@@ -2,9 +2,6 @@ package ca.etsmtl.log430.lab3;
 
 import java.io.PipedWriter;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
 
 /**
  * User: xavier
@@ -13,14 +10,11 @@ import java.util.Comparator;
  */
 public class SelectedProjectsFilter extends Filter {
 
-    private PipedWriter outputSelectedProjectPipe  = new PipedWriter();;
-    private PipedWriter outputNotSelectedProjectPipe  = new PipedWriter();;
+    private PipedWriter outputSelectedProjectPipe  = new PipedWriter();
+    private PipedWriter outputNotSelectedProjectPipe  = new PipedWriter();
 
     public SelectedProjectsFilter(final PipedWriter orignalPipe, final PipedWriter filteredPipe,
                                   final PipedWriter outputSelectedProjectPipe, final PipedWriter outputNotSelectedProjectPipe) {
-
-
-      //  super(orignalPipe, filteredPipe);
 
         super(new ArrayList<PipedWriter>() {{
                   add(orignalPipe);
