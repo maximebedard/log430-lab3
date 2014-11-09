@@ -10,59 +10,65 @@ import java.util.Comparator;
  */
 public class RateFilter extends Filter {
 
-    public enum Compare {
-        Upper,
-        Lower,
-        Equal
-    }
+    private final int rate;
+    private EqualityComparator<Integer> compare;
 
-    private Compare compare;
-    private String rateValue;
+    public static final EqualityComparator<Integer> Equals = new EqualityComparator<Integer>() {
+        @Override
+        public boolean test(Integer lhs, Integer rhs) {
+            return lhs.equals(rhs);
+        }
+    };
 
-    public RateFilter(final String rateValue, final Compare compare, PipedWriter inputPipe, PipedWriter outputPipe) {
+    public static final EqualityComparator<Integer> Lower = new EqualityComparator<Integer>() {
+        @Override
+        public boolean test(Integer lhs, Integer rhs) {
+            return lhs < rhs;
+        }
+    };
+
+    public static final EqualityComparator<Integer> Greater = new EqualityComparator<Integer>() {
+        @Override
+        public boolean test(Integer lhs, Integer rhs) {
+            return lhs > rhs;
+        }
+    };
+
+    public static final EqualityComparator<Integer> LowerEqual = new EqualityComparator<Integer>() {
+        @Override
+        public boolean test(Integer lhs, Integer rhs) {
+            return lhs <= rhs;
+        }
+    };
+
+    public static final EqualityComparator<Integer> GreaterEqual = new EqualityComparator<Integer>() {
+        @Override
+        public boolean test(Integer lhs, Integer rhs) {
+            return lhs >= rhs;
+        }
+    };
+
+
+    public RateFilter(int rate, EqualityComparator<Integer> compare, PipedWriter inputPipe, PipedWriter outputPipe) {
         super(inputPipe, outputPipe);
+        this.rate = rate;
         this.compare = compare;
-        this.rateValue = rateValue;
+
     }
 
     @Override
     public void execute()
     {
-        final ArrayList<String> lines = new ArrayList<String>();
-
         readAll(new FilterVisitor() {
             @Override
             public void onRead(String line) {
-                lines.add(line);
+                if(compare.test(getRateForLine(line), rate))
+                    writeAll(line);
             }
         });
-
-        Collections.sort(lines, new Comparator<String>() {
-            @Override
-            public int compare(String o1, String o2) {
-                return RateFilter.getRateForLine(o1).compareTo(RateFilter.getRateForLine(o2));
-            }
-        });
-
-        for(String line : lines)
-        {
-            String rate = RateFilter.getRateForLine(line);
-            if (this.compare.equals(Compare.Equal) && rate.equals(this.rateValue))
-            {
-                this.writeAll(line);
-            }
-            else if (this.compare.equals(Compare.Lower) && rate.compareTo(this.rateValue) < 0)
-            {
-                this.writeAll(line);
-            }
-            else if (this.compare.equals(Compare.Upper) && rate.compareTo(this.rateValue) > 0)
-            {
-                this.writeAll(line);
-            }
-        }
     }
 
-    private static String getRateForLine(String line) {
-        return line.split(" ")[4];
+    private static int getRateForLine(String line) {
+        return Integer.parseInt(line.split(" ")[4]);
     }
 }

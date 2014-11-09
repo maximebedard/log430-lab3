@@ -1,7 +1,5 @@
 package ca.etsmtl.log430.lab3;
 
-import java.io.IOException;
-import java.io.PipedReader;
 import java.io.PipedWriter;
 import java.util.*;
 

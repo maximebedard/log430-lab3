@@ -16,7 +16,7 @@ public abstract class Filter extends Thread {
     }
 
     private final ArrayList<PipedReader> inputPipes = new ArrayList<PipedReader>();
-    private final Collection<PipedWriter> outputPipes = new ArrayList<PipedWriter>();
+    private final ArrayList<PipedWriter> outputPipes = new ArrayList<PipedWriter>();
 
     public Filter(Collection<PipedWriter> inputPipes, Collection<PipedWriter> outputPipes) {
         for(PipedWriter inputPipe: inputPipes) {

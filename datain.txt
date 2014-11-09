@@ -7,3 +7,4 @@
 0007 REG SYS006 03.05 75 DIF Un merveilleux projet de test
 0008 REG SYS006 09.04 90 RIS Une nouvelle version de Facebook
 0009 REG SYS006 04.02 40 RIS Un remplacement pour Skype
+0010 CRI SYS006 04.02 25 RIS Un remplacement pour Skype2
